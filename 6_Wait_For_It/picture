@@ -1,0 +1,35 @@
+// S(t) = t * (tmax - t)
+// S(t) = -t^2 + t*tmax
+// |
+// |
+// |
+// |         *
+// |     *        *
+// |   *             *
+// | *                 *
+// |*____________________*
+// |
+// |
+// |
+// |
+// |
+// |
+// |
+// |
+
+// S'(t) = -2t + tmax
+// if Srec = 9 and tmax = 7
+// S(t) = -t^2 + t*tmax
+// -t^2 + t*tmax - distance > 0
+// D = tmax^2 - 4 * distance
+// t1 = (-tmax + sqrt(D)) / -2
+// t2 = (-tmax - sqrt(D)) / -2
+// num = floor(t2) - ceil(t1) + 1
+
+
+// -t^2 + 7*t - 9 > 0
+// D = 49 - 4*9 = 13
+// t1 = (-7 + sqrt(13)) / -2 = 1.7 ~ 2
+// t2 = (-7 - sqrt(13)) / -2 = 5.3 ~ 5
+// number of ways = t2 - t1 + 1 = 4
+
