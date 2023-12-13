@@ -9,174 +9,122 @@ using namespace std;
 
 class Puzzle {
 public:
-    virtual int solve(istream &input) = 0;
+    virtual int64_t solve(istream &input) = 0;
 };
 
 class Puzzle1 : public Puzzle {
-    class Graph {
-    public:
-        unordered_map<string, pair<string, string>> g;
-
-    public:
-        auto add(string value, string l, string r) {
-            g[value] = {l, r};
-            return g[value];
-        }
-
-        auto find(string value) { return g[value]; }
-    };
-
 public:
-    int solve(istream &input) override {
-        string line, traversal;
-        Graph graph;
-        getline(input, traversal);
-        getline(input, line);
+    int64_t solve(istream &input) override {
+        int64_t sum = 0;
+        string line;
+        vector<pair<int64_t, int64_t>> v;
+        int64_t y = 0;
         while (getline(input, line)) {
-            smatch m;
-            regex_search(
-                line, m,
-                regex("([A-Za-z]+)\\s*=\\s*\\(([^,]+),\\s*([^)]+)\\)"));
-            graph.add(m[1], m[2], m[3]);
+            bool no_galaxies = true;
+            for (int64_t i = 0; i < line.length(); ++i) {
+                if (line[i] == '#') {
+                    v.push_back({i, y});
+                    no_galaxies = false;
+                }
+            }
+            y++;
+            if (no_galaxies) {
+                y++;
+            }
         }
-        int count = 0;
-        auto p = graph.find("AAA");
-        bool loop = true;
-        while (loop) {
-            for (auto c : traversal) {
-                string n;
-                if (c == 'L') {
-                    n = p.first;
-                } else if (c == 'R') {
-                    n = p.second;
+        bool empty = false;
+        int64_t x_max = line.size();
+        for (auto a : v) {
+            cout << a.first << " " << a.second << endl;
+        }
+        for (int64_t i = 0; i < x_max; ++i) {
+            // int64_t x_bias = 0;
+            if (empty) {
+                empty = false;
+                continue;
+            }
+            bool at_least_one = false;
+            for (int64_t j = 0; j < v.size(); ++j) {
+                if (v[j].first == i) {
+                    at_least_one = true;
                 }
-                cout << c;
-                count++;
-                if (n == "ZZZ") {
-                    loop = false;
-                    break;
-                } else {
-                    p = graph.find(n);
-                    // cout << n << endl;
+            }
+            if (!at_least_one) {
+                for (int64_t j = 0; j < v.size(); ++j) {
+                    if (v[j].first > i) {
+                        v[j].first++;
+                    }
                 }
+                x_max++;
+                empty = true;
+            }
+        }
+        for (int64_t i = 0; i < v.size(); ++i) {
+            // cout << v[i].first << " " << v[i].second << ": " << endl;
+            for (int64_t j = i + 1; j < v.size(); ++j) {
+                sum += abs(v[j].first - v[i].first) + abs(v[j].second - v[i].second);
+                // cout << v[j].first << " " << v[j].second << " " << abs(v[j].first - v[i].first) + abs(v[j].second - v[i].second) << endl;
             }
             cout << endl;
         }
-        return count;
+        cout << sum << endl;
+        return sum;
     }
 };
 
-int64_t gcd(int64_t a, int64_t b) {
-    while (b != 0) {
-        int64_t temp = b;
-        b = a % b;
-        a = temp;
-    }
-    return a;
-}
-
-// Function to find LCM of two numbers
-int64_t lcm(int64_t a, int64_t b) {
-    return (a * b) / gcd(a, b);
-}
-
-// Function to find LCM of an array of numbers
-int64_t findLCM(vector<int64_t> v) {
-    int64_t result = v[0];
-
-    for (auto n : v) {
-        result = lcm(result, n);
-    }
-
-    return result;
-}
-
 class Puzzle2 : public Puzzle {
-    class Graph {
-    public:
-        unordered_map<string, pair<string, string>> g;
-
-    public:
-        auto add(string value, string l, string r) {
-            g[value] = {l, r};
-            return g[value];
-        }
-
-        auto find(string value) { return g[value]; }
-    };
-
 public:
-    int solve(istream &input) override {
-        string line, traversal;
-        vector<string> first;
-        Graph graph;
-        getline(input, traversal);
-        getline(input, line);
+    int64_t solve(istream &input) override {
+        int64_t sum = 0;
+        string line;
+        vector<pair<int64_t, int64_t>> v;
+        int64_t y = 0;
         while (getline(input, line)) {
-            smatch m;
-            regex_search(
-                line, m,
-                regex("([0-9A-Za-z]+)\\s*=\\s*\\(([^,]+),\\s*([^)]+)\\)"));
-            graph.add(m[1], m[2], m[3]);
-            if (string(m[1]).back() == 'A') {
-                first.push_back(m[1]);
-                cout << m[1] << endl;
-            }
-            // if (string(m[1]) == "GFA") {
-            //     first.push_back(m[1]);
-            //     cout << m[1] << endl;
-            // }
-        }
-        cout << endl;
-        vector<int64_t> count;
-        vector<pair<string, string>> cur;
-        for (auto f : first) {
-            cur.push_back(graph.find(f));
-            count.push_back(0);
-            // cout << graph.find(f).first << " " << graph.find(f).second << endl;
-        }
-        // cout << cur.size() << endl;
-        bool loop = true;
-        int z_counter = 0;
-        int i = 0;
-        for (auto &p : cur) {
-            while (loop) {
-                for (auto c : traversal) {
-                // for (auto p : cur) {
-                //     cout << p.first << " " << p.second << endl;
-                // }
-                    string n;
-                    if (c == 'L') {
-                        n = p.first;
-                    } else if (c == 'R') {
-                        n = p.second;
-                    }
-                    // cout << n << endl;
-                    count[i]++;
-                    if (n.back() == 'Z') {
-                        z_counter++;
-                        loop = false;
-                        break;
-                    }
-                    p = graph.find(n);
+            bool no_galaxies = true;
+            for (int64_t i = 0; i < line.length(); ++i) {
+                if (line[i] == '#') {
+                    v.push_back({i, y});
+                    no_galaxies = false;
                 }
-
-                // cout << endl;
-                // count++;
-                // if (z_counter != 0)
-                    // cout << z_counter << endl;
-                // if (z_counter == cur.size()) {
-                //     loop = false;
-                //     break;
-                // }
-                // z_counter = 0;
             }
-            cout << count[i] << endl;
-            i++;
-            loop = true;
+            y++;
+            if (no_galaxies) {
+                y += 1000000 - 1;
+            }
         }
-        cout << findLCM(count) << endl;
-        return findLCM(count);
+        int64_t x_max = line.size();
+        for (auto a : v) {
+            cout << a.first << " " << a.second << endl;
+        }
+        int64_t x_cur = 0;
+        while (x_cur < x_max) {
+            bool at_least_one = false;
+            for (int64_t j = 0; j < v.size(); ++j) {
+                if (v[j].first == x_cur) {
+                    at_least_one = true;
+                }
+            }
+            if (!at_least_one) {
+                for (int64_t j = 0; j < v.size(); ++j) {
+                    if (v[j].first > x_cur) {
+                        v[j].first += 1000000 - 1;
+                    }
+                }
+                x_max += 1000000 - 1;
+                x_cur += 1000000 - 1;
+            }
+            x_cur++;
+        }
+        for (int64_t i = 0; i < v.size(); ++i) {
+            // cout << v[i].first << " " << v[i].second << ": " << endl;
+            for (int64_t j = i + 1; j < v.size(); ++j) {
+                sum += abs(v[j].first - v[i].first) + abs(v[j].second - v[i].second);
+                // cout << v[j].first << " " << v[j].second << " " << abs(v[j].first - v[i].first) + abs(v[j].second - v[i].second) << endl;
+            }
+            cout << endl;
+        }
+        cout << sum << endl;
+        return sum;
     }
 };
 
@@ -187,12 +135,12 @@ private:
 public:
     void setStrategy(Puzzle *strategy) { m_strategy = strategy; }
 
-    int solve(const string &in, const string &out) {
+    int64_t solve(const string &in, const string &out) {
         ifstream input;
         ofstream output;
         input.open(in, ios::in);
         output.open(out, ios::out);
-        int rv = m_strategy->solve(input);
+        int64_t rv = m_strategy->solve(input);
         output.write(to_string(rv).data(), to_string(rv).length());
         cout << rv << endl;
         return rv;
@@ -201,8 +149,8 @@ public:
 
 int main(int argc, char *argv[]) {
     Solution sol;
-    // sol.setStrategy(new Puzzle1);
-    // sol.solve("input.txt", "output_1.txt");
+    sol.setStrategy(new Puzzle1);
+    sol.solve("input.txt", "output_1.txt");
     sol.setStrategy(new Puzzle2);
     sol.solve("input.txt", "output_2.txt");
     return 0;
